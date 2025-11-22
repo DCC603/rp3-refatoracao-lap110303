@@ -1,15 +1,18 @@
 public class Main {
 
-
     public static void main(String[] args) {
 
-        Conta minhaConta = new Conta("João", "111.111.111-11", "31 1111-1111",
-                            111, 222222, "Gil", 0.00);
+        // Criação do objeto Cliente primeiro (Composição)
+        Cliente joao = new Cliente("João", "111.111.111-11", "31 1111-1111");
 
-        minhaConta.realizarOperacao('d', 450);
-        minhaConta.realizarOperacao('s', 50);
-        minhaConta.realizarOperacao('s', 50);
-        minhaConta.realizarOperacao('s', 50);
+        // Injeção do cliente na conta
+        Conta minhaConta = new Conta(joao, 111, 222222, "Gil", 0.00);
+
+        // Uso de métodos semânticos (depositar/sacar) ao invés de chars 'd'/'s'
+        minhaConta.depositar(450);
+        minhaConta.sacar(50);
+        minhaConta.sacar(50);
+        minhaConta.sacar(50);
 
         System.out.println(minhaConta);
     }

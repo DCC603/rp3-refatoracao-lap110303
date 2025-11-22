@@ -3,62 +3,60 @@ import java.util.List;
 
 public class Conta {
 
-    // TODO(#1) REFATORAR: Esses dados deveriam ficar em outro lugar
-    private String nomeCliente;
-    private String cpfCliente;
-    private String telefoneCliente;
+    // TODO(#1): Dados movidos para a classe Cliente
+    private Cliente cliente;
 
-    // TODO(#1) REFATORAR: Esses dados deveriam ficar em outro lugar
+    // TODO(#1): Dados de agência poderiam ser uma classe Agência, 
+    // mas mantivemos simples aqui, agrupando apenas logicamente.
     private int numAgencia;
     private int numConta;
     private String gerente;
 
-    // TODO(#2) REFATORAR: Esse nome não é o ideal para representar o saldo da conta
-    private double valor;
+    // TODO(#2): Renomeado de 'valor' para 'saldo'
+    private double saldo;
 
     private List<Operacao> operacoes;
 
-    public Conta(String nomeCliente, String cpfCliente, String telefoneCliente, int numAgencia, int numConta, String gerente, double valor) {
-        this.nomeCliente = nomeCliente;
-        this.cpfCliente = cpfCliente;
-        this.telefoneCliente = telefoneCliente;
+    public Conta(Cliente cliente, int numAgencia, int numConta, String gerente, double saldoInicial) {
+        this.cliente = cliente;
         this.numAgencia = numAgencia;
         this.numConta = numConta;
         this.gerente = gerente;
-        this.valor = valor;
-
+        this.saldo = saldoInicial;
         this.operacoes = new ArrayList<>();
     }
 
-    public Conta() {
-        this(null, null, null, 0, 0, null, 0);
+    // TODO(#3): Métodos específicos ao invés de um genérico com 'char'
+    public void depositar(double valor) {
+        if (valor <= 0) return; // Validação básica
+        
+        this.saldo += valor;
+        this.operacoes.add(new Deposito(valor));
     }
 
-    // TODO(#3) REFATORAR: Muita responsabilidade para o mesmo método
-    public void realizarOperacao(char tipo, int valor) {
-        Operacao op = new Operacao(tipo, valor);
-        this.operacoes.add(op);
-
-        if (tipo == 'd')
-            this.valor += valor;
-        else if(tipo == 's')
-            this.valor -= valor;
+    public void sacar(double valor) {
+        if (valor <= 0) return;
+        
+        this.saldo -= valor;
+        this.operacoes.add(new Saque(valor));
     }
 
-    public String toString() {
-        // TODO(#4) REFATORAR: Esses dados não estão relacionados a conta
-        String dadosCliente = String.format("CPF: %s\nNome: %s\nTelefone: %s",
-                this.cpfCliente, this.nomeCliente, this.telefoneCliente);
-
-        // TODO(#4) REFATORAR: Esses dados não estão relacinados a conta
-        String dadosConta = String.format("Ag.: %d\nConta: %d\nGerente: %s\nSaldo: %.2f",
-                this.numAgencia, this.numConta, this.gerente, this.valor);
-
-        // TODO(#5) REFATORAR: Essa operação não deveria estar sendo realizada neste método
-        String dadosExtrato = "";
-        for(Operacao op : this.operacoes) {
-            dadosExtrato += op.toString() + "\n";
+    // TODO(#5): Extração da lógica de geração de extrato
+    private String gerarExtrato() {
+        StringBuilder sb = new StringBuilder();
+        for (Operacao op : this.operacoes) {
+            sb.append(op.toString()).append("\n");
         }
+        return sb.toString();
+    }
+
+    @Override
+    public String toString() {
+        // TODO(#4): Delega a formatação dos dados do cliente para a classe Cliente
+        String dadosCliente = this.cliente.toString();
+
+        String dadosConta = String.format("Ag.: %d\nConta: %d\nGerente: %s\nSaldo: %.2f",
+                this.numAgencia, this.numConta, this.gerente, this.saldo);
 
         return "-----CLIENTE-----\n" +
                 dadosCliente +
@@ -67,7 +65,7 @@ public class Conta {
                 dadosConta +
                 "\n\n" +
                 "-----EXTRATO-----\n" +
-                dadosExtrato +
+                this.gerarExtrato() + 
                 "\n";
     }
 }
